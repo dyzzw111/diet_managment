@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFFAF0;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            background: #FFD580;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar {
+            height: 20px;
+            background: #FF4500;
+            border-radius: 10px;
+            width: 70%; /* Example progress */
+            transition: width 0.3s;
+        }
+        .progress-container {
+            background: #EEE;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+            margin: 20px 0;
+        }
+        .button {
+            background: #FF6347;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background: #FF4500;
+        }
+        .meal-list {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .meal-item {
+            background: #FFF5E1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        .food-details {
+            display: none;
+            background: #FFD580;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: calc(100% - 61.8% * 100%);
+            transform: translate(-50%, -50%);
+            width: 61.8%;
+            height: auto;
+            max-width: 400px;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background: #FFD580;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        function toggleFoodDetails(mealType) {
+            let details = document.getElementById(mealType + "-details");
+            details.style.display = details.style.display === "none" ? "block" : "none";
+        }
+        
+        function openModal() {
+            document.getElementById("foodModal").style.display = "block";
+        }
+        
+        function closeModal() {
+            document.getElementById("foodModal").style.display = "none";
+        }
+        
+        function addFood() {
+            let mealType = document.getElementById("mealType").value;
+            let foodName = document.getElementById("foodName").value;
+            let foodCalories = parseInt(document.getElementById("foodCalories").value);
+            
+            if (foodName && foodCalories) {
+                let details = document.getElementById(mealType + "-details");
+                let newFoodItem = document.createElement("div");
+                newFoodItem.textContent = `${foodName} - ${foodCalories} kcal`;
+                details.appendChild(newFoodItem);
+                details.style.display = "block";
+                
+                updateCalories(foodCalories);
+                closeModal();
+            }
+        }
+        
+        function updateCalories(calories) {
+            let currentCalories = parseInt(document.querySelector('strong').textContent);
+            let newCalories = currentCalories + calories;
+            document.querySelector('strong').textContent = newCalories;
+            let progressBar = document.querySelector('.progress-bar');
+            let progress = (newCalories / 2000) * 100;
+            progressBar.style.width = progress + '%';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Calorie Tracker</h1>
+        <p>Calories Consumed: <strong>1400</strong> / <strong>2000</strong></p>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        <button class="button" onclick="openModal()">Add Food</button>
+        
+        <div class="meal-list">
+            <h2>Today's Meals</h2>
+            <div class="meal-item" onclick="toggleFoodDetails('breakfast')">🍳 Breakfast: 400 kcal</div>
+            <div id="breakfast-details" class="food-details">Eggs - 200 kcal<br>Toast - 200 kcal</div>
+            <div class="meal-item" onclick="toggleFoodDetails('lunch')">🥗 Lunch: 600 kcal</div>
+            <div id="lunch-details" class="food-details">Salad - 300 kcal<br>Chicken - 300 kcal</div>
+            <div class="meal-item" onclick="toggleFoodDetails('dinner')">🍛 Dinner: 400 kcal</div>
+            <div id="dinner-details" class="food-details">Rice - 200 kcal<br>Fish - 200 kcal</div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2025 Calorie Tracker. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <div id="foodModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Food</h2>
+            <label>Meal Type:
+                <select id="mealType">
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                </select>
+            </label><br><br>
+            <label>Food Name: <input type="text" id="foodName"></label><br><br>
+            <label>Calories: <input type="number" id="foodCalories"></label><br><br>
+            <button class="button" onclick="addFood()">Add</button>
+            <button class="button" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</body>
+</html>

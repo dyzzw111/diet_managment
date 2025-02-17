@@ -25,7 +25,7 @@
             height: 20px;
             background: #FF4500;
             border-radius: 10px;
-            width: 70%; /* Example progress */
+            width: 0%;
             transition: width 0.3s;
         }
         .progress-container {
@@ -43,6 +43,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            margin: 5px;
         }
         .button:hover {
             background: #FF4500;
@@ -58,6 +59,17 @@
             margin-bottom: 5px;
             cursor: pointer;
         }
+        .hidden-meals {
+            display: none;
+            margin-top: 10px;
+        }
+        .toggle-hidden {
+            background: none;
+            border: none;
+            color: #FF6347;
+            cursor: pointer;
+            font-size: 14px;
+        }
         .footer {
             margin-top: 20px;
             font-size: 14px;
@@ -70,105 +82,147 @@
             border-radius: 5px;
             margin-top: 5px;
         }
+        .delete-btn {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+        }
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 10;
             left: 50%;
-            top: calc(100% - 61.8% * 100%);
+            top: 20%;
             transform: translate(-50%, -50%);
-            width: 61.8%;
-            height: auto;
-            max-width: 400px;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background: #FFD580;
-            margin: auto;
-            padding: 20px;
+            width: 60%;
+            max-width: 300px;
+            background: rgba(255, 213, 128, 0.85);
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .modal-content input, select {
+            width: 80%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
         }
     </style>
     <script>
+        let totalCalories = 0; // 初始热量
+        const maxCalories = 2000;
+
+        function updateProgressBar() {
+            let progress = Math.min((totalCalories / maxCalories) * 100, 100);
+            document.querySelector(".progress-bar").style.width = progress + "%";
+        }
+
+        function updateCalories(change) {
+            totalCalories += change;
+            document.getElementById("calorieCount").textContent = totalCalories;
+            updateProgressBar();
+        }
+
         function toggleFoodDetails(mealType) {
             let details = document.getElementById(mealType + "-details");
             details.style.display = details.style.display === "none" ? "block" : "none";
         }
-        
+
+        function toggleHiddenMeals() {
+            let hiddenMeals = document.getElementById("hiddenMeals");
+            hiddenMeals.style.display = hiddenMeals.style.display === "none" ? "block" : "none";
+        }
+
         function openModal() {
             document.getElementById("foodModal").style.display = "block";
         }
-        
+
         function closeModal() {
             document.getElementById("foodModal").style.display = "none";
+            document.getElementById("foodName").value = "";
+            document.getElementById("foodCalories").value = "";
         }
-        
+
         function addFood() {
             let mealType = document.getElementById("mealType").value;
             let foodName = document.getElementById("foodName").value;
-            let foodCalories = parseInt(document.getElementById("foodCalories").value);
-            
-            if (foodName && foodCalories) {
-                let details = document.getElementById(mealType + "-details");
-                let newFoodItem = document.createElement("div");
-                newFoodItem.textContent = `${foodName} - ${foodCalories} kcal`;
-                details.appendChild(newFoodItem);
-                details.style.display = "block";
-                
-                updateCalories(foodCalories);
-                closeModal();
+            let foodCalories = parseInt(document.getElementById("foodCalories").value, 10);
+
+            if (!foodName || isNaN(foodCalories) || foodCalories <= 0) {
+                alert("Please enter valid food details.");
+                return;
             }
+
+            let mealDetails = document.getElementById(mealType + "-details");
+            let newFoodItem = document.createElement("div");
+            newFoodItem.classList.add("meal-item");
+            newFoodItem.innerHTML = `${foodName} - ${foodCalories} kcal 
+                <span class="delete-btn" onclick="deleteFood(this, ${foodCalories})">❌</span>`;
+
+            mealDetails.appendChild(newFoodItem);
+            mealDetails.style.display = "block";
+
+            updateCalories(foodCalories);
+            closeModal();
         }
-        
-        function updateCalories(calories) {
-            let currentCalories = parseInt(document.querySelector('strong').textContent);
-            let newCalories = currentCalories + calories;
-            document.querySelector('strong').textContent = newCalories;
-            let progressBar = document.querySelector('.progress-bar');
-            let progress = (newCalories / 2000) * 100;
-            progressBar.style.width = progress + '%';
+
+        function deleteFood(element, calories) {
+            element.parentElement.remove();
+            updateCalories(-calories);
         }
+
+        window.onload = updateProgressBar;
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Calorie Tracker</h1>
-        <p>Calories Consumed: <strong>1400</strong> / <strong>2000</strong></p>
+        <p>Calories Consumed: <strong id="calorieCount">0</strong> / <strong>2000</strong></p>
         <div class="progress-container">
             <div class="progress-bar"></div>
         </div>
         <button class="button" onclick="openModal()">Add Food</button>
-        
         <div class="meal-list">
             <h2>Today's Meals</h2>
-            <div class="meal-item" onclick="toggleFoodDetails('breakfast')">🍳 Breakfast: 400 kcal</div>
-            <div id="breakfast-details" class="food-details">Eggs - 200 kcal<br>Toast - 200 kcal</div>
-            <div class="meal-item" onclick="toggleFoodDetails('lunch')">🥗 Lunch: 600 kcal</div>
-            <div id="lunch-details" class="food-details">Salad - 300 kcal<br>Chicken - 300 kcal</div>
-            <div class="meal-item" onclick="toggleFoodDetails('dinner')">🍛 Dinner: 400 kcal</div>
-            <div id="dinner-details" class="food-details">Rice - 200 kcal<br>Fish - 200 kcal</div>
-        </div>
-        
-        <div class="footer">
-            <p>&copy; 2025 Calorie Tracker. All rights reserved.</p>
+            <div class="meal-item" onclick="toggleFoodDetails('breakfast')">🍳 Breakfast</div>
+            <div id="breakfast-details" class="food-details"></div>
+            <div class="meal-item" onclick="toggleFoodDetails('lunch')">🥗 Lunch</div>
+            <div id="lunch-details" class="food-details"></div>
+            <div class="meal-item" onclick="toggleFoodDetails('dinner')">🍛 Dinner</div>
+            <div id="dinner-details" class="food-details"></div>
         </div>
     </div>
-    
+
     <div id="foodModal" class="modal">
         <div class="modal-content">
             <h2>Add Food</h2>
-            <label>Meal Type:
-                <select id="mealType">
-                    <option value="breakfast">Breakfast</option>
-                    <option value="lunch">Lunch</option>
-                    <option value="dinner">Dinner</option>
-                </select>
-            </label><br><br>
-            <label>Food Name: <input type="text" id="foodName"></label><br><br>
-            <label>Calories: <input type="number" id="foodCalories"></label><br><br>
-            <button class="button" onclick="addFood()">Add</button>
-            <button class="button" onclick="closeModal()">Close</button>
+            <select id="mealType">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+            </select>
+            <input type="text" id="foodName" placeholder="Food Name">
+            <input type="number" id="foodCalories" placeholder="Calories">
+            <div class="modal-buttons">
+                <button class="button" onclick="addFood()">Add</button>
+                <button class="button" onclick="closeModal()">Close</button>
+            </div>
         </div>
     </div>
 </body>

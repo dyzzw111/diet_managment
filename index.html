@@ -153,8 +153,8 @@
             let foodName = document.getElementById("foodName").value.trim();
             let foodCalories = parseInt(document.getElementById("foodCalories").value, 10);
 
-            if (!foodName || isNaN(foodCalories) || foodCalories < 1 || foodCalories > 5000) {
-                alert("Please enter a valid food name and calorie amount (1-5000).");
+            if (!foodName || isNaN(foodCalories) || foodCalories < 1 || foodCalories > 5001) {
+                alert("Please enter a valid food name and calorie amount (1-5001).");
                 return;
             }
 
